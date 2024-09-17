@@ -74,7 +74,7 @@ export const SignUpCard = ({ setState }: SignUpCardProps) => {
             disabled={pending}
             value={name}
             onChange={(e) => setName(e.target.value)}
-            placeholder="Full name"
+            placeholder="Full Name"
             required
           />
 
