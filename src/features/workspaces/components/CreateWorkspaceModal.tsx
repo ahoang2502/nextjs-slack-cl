@@ -16,14 +16,14 @@ export const CreateWorkspaceModal = () => {
   const router = useRouter();
   const [open, setOpen] = useCreateWorkspaceModal();
 
-  const { mutate } = useCreateWorkspace();
+  const { mutate, isPending } = useCreateWorkspace();
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleSubmit = () => {
-    mutate(
+  const handleSubmit = async () => {
+    const data = await mutate(
       {
         name: "Workspace 1",
       },
@@ -46,7 +46,7 @@ export const CreateWorkspaceModal = () => {
 
         <form className="space-y-4">
           <Input
-            disabled={false}
+            disabled={isPending}
             value=""
             required
             autoFocus
@@ -55,7 +55,7 @@ export const CreateWorkspaceModal = () => {
           />
 
           <div className="flex justify-end">
-            <Button disabled={false}>Create</Button>
+            <Button disabled={isPending}>Create</Button>
           </div>
         </form>
       </DialogContent>
