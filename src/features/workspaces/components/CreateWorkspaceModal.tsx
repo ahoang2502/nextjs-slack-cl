@@ -1,38 +1,42 @@
 import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { toast } from "sonner";
 
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useCreateWorkspaceModal } from "../store/useCreateWorkspaceModal";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { useCreateWorkspace } from "../api/useCreateWorkspace";
+import { useCreateWorkspaceModal } from "../store/useCreateWorkspaceModal";
 
 export const CreateWorkspaceModal = () => {
   const router = useRouter();
+  const [name, setName] = useState("");
+
   const [open, setOpen] = useCreateWorkspaceModal();
 
   const { mutate, isPending } = useCreateWorkspace();
 
   const handleClose = () => {
     setOpen(false);
+    setName("");
   };
 
-  const handleSubmit = async () => {
-    const data = await mutate(
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    await mutate(
+      { name },
       {
-        name: "Workspace 1",
-      },
-      {
-        onSuccess: (data) => {
-          router.push(`/workspaces/${data}`);
+        onSuccess: (workspaceId) => {
+          toast.success("Workspace created!");
+          router.push(`/workspace/${workspaceId}`);
+          handleClose();
         },
-        onError: () => {},
-        onSettled: () => {},
       }
     );
   };
@@ -44,10 +48,11 @@ export const CreateWorkspaceModal = () => {
           <DialogTitle>Add a workspace</DialogTitle>
         </DialogHeader>
 
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <Input
             disabled={isPending}
-            value=""
+            value={name}
+            onChange={(e) => setName(e.target.value)}
             required
             autoFocus
             minLength={3}
@@ -55,7 +60,9 @@ export const CreateWorkspaceModal = () => {
           />
 
           <div className="flex justify-end">
-            <Button disabled={isPending}>Create</Button>
+            <Button disabled={isPending} variant="primary">
+              Create
+            </Button>
           </div>
         </form>
       </DialogContent>
