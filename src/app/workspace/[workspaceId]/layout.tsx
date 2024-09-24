@@ -1,12 +1,13 @@
 "use client";
 
-import { Sidebar } from "./Sidebar";
-import { Toolbar } from "./Toolbar";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import { Sidebar } from "./Sidebar";
+import { Toolbar } from "./Toolbar";
+import { WorkspaceSidebar } from "./WorkspaceSidebar";
 
 interface WorkspaceIdLayoutProps {
   children: React.ReactNode;
