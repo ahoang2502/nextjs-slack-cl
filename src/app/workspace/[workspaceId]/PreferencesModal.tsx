@@ -8,6 +8,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { TrashIcon } from "lucide-react";
+import { useUpdateWorkspace } from "@/features/workspaces/api/useUpdateWorkspace";
 
 interface PreferencesModalProps {
   open: boolean;
@@ -21,6 +22,9 @@ export const PreferencesModal = ({
   initialValue,
 }: PreferencesModalProps) => {
   const [value, setValue] = useState(initialValue);
+
+  const { mutate: updateWorkspace, isPending: isUpdatingWorkspace } =
+    useUpdateWorkspace();
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -40,9 +44,7 @@ export const PreferencesModal = ({
 
             <p className="text-sm">{value}</p>
           </div>
-
           ""
-
           <button
             disabled={false}
             onClick={() => {}}
