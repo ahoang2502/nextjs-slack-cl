@@ -33,7 +33,10 @@ export const WorkspaceSidebar = () => {
 
   return (
     <div className="flex flex-col bg-[#86558d] h-full">
-      <WorkspaceHeader />
+      <WorkspaceHeader
+        workspace={workspace}
+        isAdmin={member.role === "admin"}
+      />
     </div>
   );
 };
