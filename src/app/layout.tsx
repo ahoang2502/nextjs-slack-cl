@@ -12,7 +12,8 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Slack",
-  description: "",
+  description:
+    "Slack is a new way to communicate with your team. It's faster, better organised and more secure than email.",
 };
 
 export default function RootLayout({
