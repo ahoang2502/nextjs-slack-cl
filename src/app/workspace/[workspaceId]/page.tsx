@@ -8,6 +8,7 @@ import { useWorkspaceId } from "@/hooks/useWorkspaceId";
 
 import { useGetChannels } from "@/features/channels/api/useGetChannels";
 import { useCreateChannelModal } from "@/features/channels/store/useCreateChannelModal";
+import { useCurrentMember } from "@/features/members/api/useCurrentMember";
 import { useGetWorkspace } from "@/features/workspaces/api/useGetWorkspace";
 
 const WorkspaceIdPage = () => {
@@ -21,15 +22,26 @@ const WorkspaceIdPage = () => {
   const { data: channels, isLoading: channelsLoading } = useGetChannels({
     workspaceId,
   });
+  const { data: member, isLoading: memberLoading } = useCurrentMember({
+    workspaceId,
+  });
 
   const channelId = useMemo(() => channels?.[0]._id, [channels]);
+  const isAdmin = useMemo(() => member?.role === "admin", [member?.role]);
 
   useEffect(() => {
-    if (workspaceLoading || channelsLoading || !workspace) return;
+    if (
+      workspaceLoading ||
+      channelsLoading ||
+      memberLoading ||
+      !member ||
+      !workspace
+    )
+      return;
 
     if (channelId)
       router.push(`/workspace/${workspaceId}/channel/${channelId}`);
-    else if (!open) setOpen(true);
+    else if (!open && isAdmin) setOpen(true);
   }, [
     channelId,
     workspaceLoading,
@@ -39,6 +51,9 @@ const WorkspaceIdPage = () => {
     setOpen,
     router,
     workspaceId,
+    member,
+    memberLoading,
+    isAdmin,
   ]);
 
   if (workspaceLoading || channelsLoading)
@@ -58,7 +73,12 @@ const WorkspaceIdPage = () => {
       </div>
     );
 
-  return null;
+  return (
+    <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
+      <TriangleAlert className="size-6 text-muted-foreground" />
+      <span className="text-sm text-muted-foreground">No channel found</span>
+    </div>
+  );
 };
 
 export default WorkspaceIdPage;
