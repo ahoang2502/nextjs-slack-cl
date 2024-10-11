@@ -3,6 +3,7 @@
 import { Loader, TriangleAlert } from "lucide-react";
 
 import { useChannelId } from "@/hooks/useChannelId";
+import { Header } from "./Header";
 
 import { useGetChannel } from "@/features/channels/api/useGetChannel";
 
@@ -28,9 +29,11 @@ const ChannelIdPage = () => {
       </div>
     );
 
-  return <div>
-    
-  </div>;
+  return (
+    <div className="flex flex-col h-full">
+      <Header title={channel.name} />
+    </div>
+  );
 };
 
 export default ChannelIdPage;
