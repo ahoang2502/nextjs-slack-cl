@@ -8,7 +8,12 @@ import "quill/dist/quill.snow.css";
 import { Button } from "./ui/button";
 import { Hint } from "./Hint";
 
-const Editor = () => {
+interface EditorProps {
+  variant?: "create" | "update";
+  
+}
+
+const Editor = ({ variant = "create" }: EditorProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -60,25 +65,51 @@ const Editor = () => {
             </Button>
           </Hint>
 
-          <Hint label="Image">
+          {variant === "create" && (
+            <Hint label="Image">
+              <Button
+                disabled={false}
+                size="iconSm"
+                variant="ghost"
+                onClick={() => {}}
+              >
+                <ImageIcon className="size-4 " />
+              </Button>
+            </Hint>
+          )}
+
+          {variant === "update" && (
+            <div className="ml-auto flex items-center gap-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {}}
+                disabled={false}
+              >
+                Cancel
+              </Button>
+
+              <Button
+                size="sm"
+                onClick={() => {}}
+                disabled={false}
+                className="bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+              >
+                Save
+              </Button>
+            </div>
+          )}
+
+          {variant === "create" && (
             <Button
               disabled={false}
-              size="iconSm"
-              variant="ghost"
               onClick={() => {}}
+              className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+              size="iconSm"
             >
-              <ImageIcon className="size-4 " />
+              <MdSend className="size-4" />
             </Button>
-          </Hint>
-
-          <Button
-            disabled={false}
-            onClick={() => {}}
-            className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
-            size="iconSm"
-          >
-            <MdSend className="size-4" />
-          </Button>
+          )}
         </div>
       </div>
 
