@@ -41,6 +41,7 @@ const Editor = ({
   disabled = false,
 }: EditorProps) => {
   const [text, setText] = useState("");
+  const [isToolbarVisible, setIsToolbarVisible] = useState(false);
 
   const submitRef = useRef(onSubmit);
   const placeholderRef = useRef(placeholder);
@@ -117,6 +118,13 @@ const Editor = ({
     };
   }, [innerRef]);
 
+  const toggleToolbar = () => {
+    setIsToolbarVisible((current) => !current);
+    const toolbarElement = containerRef.current?.querySelector(".ql-toolbar");
+
+    if (toolbarElement) toolbarElement.classList.toggle("hidden");
+  };
+
   const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
   return (
@@ -125,12 +133,14 @@ const Editor = ({
         <div ref={containerRef} className="h-full ql-custom" />
 
         <div className="flex px-2 pb-2 z-[5] ">
-          <Hint label="Hide formatting">
+          <Hint
+            label={isToolbarVisible ? "Hide formatting" : "Show formatting"}
+          >
             <Button
-              disabled={false}
+              disabled={disabled}
               size="iconSm"
               variant="ghost"
-              onClick={() => {}}
+              onClick={toggleToolbar}
             >
               <PiTextAa className="size-4 " />
             </Button>
@@ -138,7 +148,7 @@ const Editor = ({
 
           <Hint label="Emoji">
             <Button
-              disabled={false}
+              disabled={disabled}
               size="iconSm"
               variant="ghost"
               onClick={() => {}}
@@ -150,7 +160,7 @@ const Editor = ({
           {variant === "create" && (
             <Hint label="Image">
               <Button
-                disabled={false}
+                disabled={disabled}
                 size="iconSm"
                 variant="ghost"
                 onClick={() => {}}
@@ -166,7 +176,7 @@ const Editor = ({
                 variant="outline"
                 size="sm"
                 onClick={() => {}}
-                disabled={false}
+                disabled={disabled}
               >
                 Cancel
               </Button>
@@ -174,7 +184,7 @@ const Editor = ({
               <Button
                 size="sm"
                 onClick={() => {}}
-                disabled={false}
+                disabled={disabled || isEmpty}
                 className="bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
               >
                 Save
