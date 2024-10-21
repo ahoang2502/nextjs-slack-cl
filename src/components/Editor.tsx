@@ -41,7 +41,7 @@ const Editor = ({
   disabled = false,
 }: EditorProps) => {
   const [text, setText] = useState("");
-  const [isToolbarVisible, setIsToolbarVisible] = useState(false);
+  const [isToolbarVisible, setIsToolbarVisible] = useState(true);
 
   const submitRef = useRef(onSubmit);
   const placeholderRef = useRef(placeholder);
