@@ -1,20 +1,60 @@
 import { ImageIcon, Smile } from "lucide-react";
 import Quill, { QuillOptions } from "quill";
-import { useEffect, useRef } from "react";
-import { PiTextAa } from "react-icons/pi";
+import { Delta, Op } from "quill/core";
+import {
+  MutableRefObject,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { MdSend } from "react-icons/md";
+import { PiTextAa } from "react-icons/pi";
 
+import { cn } from "@/lib/utils";
 import "quill/dist/quill.snow.css";
-import { Button } from "./ui/button";
 import { Hint } from "./Hint";
+import { Button } from "./ui/button";
+
+type EditorValue = {
+  image: File | null;
+  body: string;
+};
 
 interface EditorProps {
+  onSubmit: ({ image, body }: EditorValue) => void;
   variant?: "create" | "update";
-  
+  onCancel?: () => void;
+  placeholder?: string;
+  defaultValue?: Delta | Op[];
+  disabled?: boolean;
+  innerRef?: MutableRefObject<Quill | null>;
 }
 
-const Editor = ({ variant = "create" }: EditorProps) => {
+const Editor = ({
+  variant = "create",
+  onSubmit,
+  onCancel,
+  placeholder = "Write something...",
+  defaultValue = [],
+  innerRef,
+  disabled = false,
+}: EditorProps) => {
+  const [text, setText] = useState("");
+
+  const submitRef = useRef(onSubmit);
+  const placeholderRef = useRef(placeholder);
+  const quillRef = useRef<Quill | null>(null);
+  const defaultValueRef = useRef(defaultValue);
   const containerRef = useRef<HTMLDivElement>(null);
+  const disabledRef = useRef(disabled);
+
+  useLayoutEffect(() => {
+    submitRef.current = onSubmit;
+    placeholderRef.current = placeholder;
+    defaultValueRef.current = defaultValue;
+    disabledRef.current = disabled;
+  });
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -26,16 +66,34 @@ const Editor = ({ variant = "create" }: EditorProps) => {
 
     const options: QuillOptions = {
       theme: "snow",
+      placeholder: placeholderRef.current,
     };
 
     const quill = new Quill(editorContainer, options);
+    quillRef.current = quill;
+    quillRef.current.focus();
+
+    if (innerRef) innerRef.current = quill;
+
+    quill.setContents(defaultValueRef.current);
+    setText(quill.getText());
+
+    quill.on(Quill.events.TEXT_CHANGE, () => {
+      setText(quill.getText());
+    });
 
     return () => {
+      quill.off(Quill.events.TEXT_CHANGE);
+
       if (container) {
         container.innerHTML = "";
       }
+      if (quillRef.current) quillRef.current = null;
+      if (innerRef) innerRef.current = null;
     };
-  }, []);
+  }, [innerRef]);
+
+  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
 
   return (
     <div className="flex flex-col">
@@ -102,9 +160,14 @@ const Editor = ({ variant = "create" }: EditorProps) => {
 
           {variant === "create" && (
             <Button
-              disabled={false}
+              disabled={disabled || isEmpty}
               onClick={() => {}}
-              className="ml-auto bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+              className={cn(
+                "ml-auto",
+                isEmpty
+                  ? "bg-white hover:bg-white text-muted-foreground"
+                  : "bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
+              )}
               size="iconSm"
             >
               <MdSend className="size-4" />
