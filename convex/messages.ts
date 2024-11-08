@@ -1,8 +1,48 @@
+import { paginationOptsValidator } from "convex/server";
 import { v } from "convex/values";
 
 import { Id } from "./_generated/dataModel";
-import { mutation, QueryCtx } from "./_generated/server";
+import { mutation, query, QueryCtx } from "./_generated/server";
 import { auth } from "./auth";
+
+const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
+  const messages = await ctx.db
+    .query("messages")
+    .withIndex("by_parent_message_id", (q) =>
+      q.eq("parentMessageId", messageId)
+    )
+    .collect();
+
+  if (messages.length) return { count: 0, image: undefined, timestamp: 0 };
+
+  const lastMessage = messages[messages.length - 1];
+  const lastMessageMember = await populateMember(ctx, lastMessage.memberId);
+
+  if (!lastMessageMember) return { count: 0, image: undefined, timestamp: 0 };
+
+  const lastMessageUser = await populateUser(ctx, lastMessageMember.userId);
+
+  return {
+    count: messages.length,
+    image: lastMessageUser?.image,
+    timestamp: lastMessage?._creationTime,
+  };
+};
+
+const populateReaction = (ctx: QueryCtx, messageId: Id<"messages">) => {
+  return ctx.db
+    .query("reactions")
+    .withIndex("by_message_id", (q) => q.eq("messageId", messageId))
+    .collect();
+};
+
+const populateUser = (ctx: QueryCtx, userId: Id<"users">) => {
+  return ctx.db.get(userId);
+};
+
+const populateMember = (ctx: QueryCtx, memberId: Id<"members">) => {
+  return ctx.db.get(memberId);
+};
 
 const getMember = async (
   ctx: QueryCtx,
@@ -16,6 +56,42 @@ const getMember = async (
     )
     .unique();
 };
+
+export const get = query({
+  args: {
+    channelId: v.optional(v.id("channels")),
+    conversationId: v.optional(v.id("conversations")),
+    parentMessageId: v.optional(v.id("messages")),
+    paginationOpts: paginationOptsValidator,
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    let _conversationId = args.conversationId;
+
+    if (!args.conversationId && !args.channelId && args.parentMessageId) {
+      const parentMessage = await ctx.db.get(args.parentMessageId);
+
+      if (!parentMessage) throw new Error("Message not found");
+
+      _conversationId = parentMessage.conversationId;
+    }
+
+    const results = await ctx.db
+      .query("messages")
+      .withIndex("by_channel_id_parent_message_id_conversation_id", (q) =>
+        q
+          .eq("channelId", args.channelId)
+          .eq("parentMessageId", args.parentMessageId)
+          .eq("conversationId", _conversationId)
+      )
+      .order("desc")
+      .paginate(args.paginationOpts);
+
+    return results;
+  },
+});
 
 export const create = mutation({
   args: {
