@@ -7,10 +7,12 @@ import { ChatInput } from "./ChatInput";
 import { Header } from "./Header";
 
 import { useGetChannel } from "@/features/channels/api/useGetChannel";
+import { useGetMessages } from "@/features/messages/api/useGetMessages";
 
 const ChannelIdPage = () => {
   const channelId = useChannelId();
 
+  const { results } = useGetMessages({ channelId });
   const { data: channel, isLoading: channelLoading } = useGetChannel({
     id: channelId,
   });
