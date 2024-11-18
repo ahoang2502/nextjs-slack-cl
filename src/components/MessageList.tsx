@@ -1,8 +1,10 @@
-import { format, isToday, isYesterday } from "date-fns";
+import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 
 import { Message } from "./Message";
 
 import { GetMessagesReturnType } from "@/features/messages/api/useGetMessages";
+
+const TIME_THRESHOLD = 5;
 
 const formatDateLabel = (dateStr: string) => {
   const date = new Date(dateStr);
@@ -60,6 +62,15 @@ export const MessageList = ({
           </div>
 
           {messages.map((message, index) => {
+            const prevMessage = messages[index - 1];
+            const isCompact =
+              prevMessage &&
+              prevMessage.user?._id === message.user?._id &&
+              differenceInMinutes(
+                new Date(message._creationTime),
+                new Date(prevMessage._creationTime)
+              ) < TIME_THRESHOLD;
+              
             return (
               <Message
                 key={message._id}
@@ -74,8 +85,8 @@ export const MessageList = ({
                 updatedAt={message.updatedAt}
                 createdAt={message._creationTime}
                 isEditing={false}
-                setEditingId={() =>{}}
-                isCompact={false}
+                setEditingId={() => {}}
+                isCompact={isCompact}
                 hideThreadButton={false}
                 threadCount={message.threadCount}
                 threadImage={message.threadImage}

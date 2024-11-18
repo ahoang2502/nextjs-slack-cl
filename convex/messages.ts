@@ -13,7 +13,7 @@ const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
     )
     .collect();
 
-  if (messages.length) return { count: 0, image: undefined, timestamp: 0 };
+  if (messages.length === 0) return { count: 0, image: undefined, timestamp: 0 };
 
   const lastMessage = messages[messages.length - 1];
   const lastMessageMember = await populateMember(ctx, lastMessage.memberId);

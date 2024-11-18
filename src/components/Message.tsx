@@ -81,11 +81,9 @@ export const Message = ({
     <div className="flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative">
       <div className="flex items-start gap-2">
         <button>
-          <Avatar className="size-5 rounded-md mr-1">
-            <AvatarImage src={authorImage} className="rounded-md" />
-            <AvatarFallback className="rounded-md bg-sky-500 text-white text-xs">
-              {avatarFallback}
-            </AvatarFallback>
+          <Avatar>
+            <AvatarImage src={authorImage} />
+            <AvatarFallback>{avatarFallback}</AvatarFallback>
           </Avatar>
         </button>
 
