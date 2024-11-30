@@ -13,7 +13,8 @@ const populateThread = async (ctx: QueryCtx, messageId: Id<"messages">) => {
     )
     .collect();
 
-  if (messages.length === 0) return { count: 0, image: undefined, timestamp: 0 };
+  if (messages.length === 0)
+    return { count: 0, image: undefined, timestamp: 0 };
 
   const lastMessage = messages[messages.length - 1];
   const lastMessageMember = await populateMember(ctx, lastMessage.memberId);
@@ -56,6 +57,32 @@ const getMember = async (
     )
     .unique();
 };
+
+export const update = mutation({
+  args: {
+    id: v.id("messages"),
+    body: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+
+    if (!userId) throw new Error("Unauthorized");
+
+    const message = await ctx.db.get(args.id);
+    if (!message) throw new Error("Message not found");
+
+    const member = await getMember(ctx, message.workspaceId, userId);
+    if (!member || member._id !== message.memberId)
+      throw new Error("Unauthorized");
+
+    await ctx.db.patch(args.id, {
+      body: args.body,
+      updatedAt: Date.now(),
+    });
+
+    return args.id;
+  },
+});
 
 export const get = query({
   args: {
