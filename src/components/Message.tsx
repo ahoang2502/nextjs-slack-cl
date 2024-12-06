@@ -6,6 +6,7 @@ import { useConfirm } from "@/hooks/useConfirm";
 import { cn } from "@/lib/utils";
 import { Doc, Id } from "../../convex/_generated/dataModel";
 import { Hint } from "./Hint";
+import { Reactions } from "./Reactions";
 import { Thumbnail } from "./Thumbnail";
 import { Toolbar } from "./Toolbar";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -164,7 +165,7 @@ export const Message = ({
                   </span>
                 ) : null}
 
-                {JSON.stringify(reactions)}
+                <Reactions data={reactions} onChange={handleReaction} />
               </div>
             )}
           </div>
@@ -240,7 +241,7 @@ export const Message = ({
                 <span className="text-xs text-muted-foreground">(edited)</span>
               ) : null}
 
-              {JSON.stringify(reactions.map((reaction) => reaction.value))}
+              <Reactions data={reactions} onChange={handleReaction} />
             </div>
           )}
         </div>
