@@ -1,9 +1,13 @@
 import { AlertTriangle, Loader, XIcon } from "lucide-react";
+import { useState } from "react";
 
-import { Button } from "@/components/ui/button";
-import { Id } from "../../../../convex/_generated/dataModel";
-import { useGetMessage } from "../api/useGetMessage";
 import { Message } from "@/components/Message";
+import { Button } from "@/components/ui/button";
+import { useWorkspaceId } from "@/hooks/useWorkspaceId";
+import { Id } from "../../../../convex/_generated/dataModel";
+
+import { useCurrentMember } from "@/features/members/api/useCurrentMember";
+import { useGetMessage } from "../api/useGetMessage";
 
 interface ThreadProps {
   messageId: Id<"messages">;
@@ -11,6 +15,11 @@ interface ThreadProps {
 }
 
 export const Thread = ({ messageId, onClose }: ThreadProps) => {
+  const workspaceId = useWorkspaceId();
+
+  const [editingId, setEditingId] = useState<Id<"messages"> | null>(null);
+
+  const { data: currentMember } = useCurrentMember({ workspaceId });
   const { data: message, isLoading: loadingMessage } = useGetMessage({
     id: messageId,
   });
@@ -65,15 +74,15 @@ export const Thread = ({ messageId, onClose }: ThreadProps) => {
           hideThreadButton
           memberId={message.memberId}
           authorImage={message.user.name}
-          isAuthor={false}
+          isAuthor={message.memberId === currentMember?._id}
           body={message.body}
           image={message.image}
           createdAt={message._creationTime}
           updatedAt={message.updatedAt}
           id={message._id}
           reactions={message.reactions}
-          isEditing={false}
-          setEditingId={() => {}}
+          isEditing={editingId === message._id}
+          setEditingId={setEditingId}
         />
       </div>
     </div>
