@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useMemberId } from "@/hooks/useMemberId";
 import { useWorkspaceId } from "@/hooks/useWorkspaceId";
 import { Id } from "../../../../../../convex/_generated/dataModel";
+import { Conversation } from "./Conversation";
 
 import { useCreateOrGetConversation } from "@/features/conversations/api/useCreateOrGetConversation";
 
