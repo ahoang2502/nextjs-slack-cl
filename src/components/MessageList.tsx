@@ -103,6 +103,7 @@ export const MessageList = ({
                 hideThreadButton={variant === "thread"}
                 threadCount={message.threadCount}
                 threadImage={message.threadImage}
+                threadName={message.threadName}
                 threadTimestamp={message.threadTimestamp}
               />
             );
@@ -141,7 +142,7 @@ export const MessageList = ({
       {variant === "channel" && channelName && channelCreationTime && (
         <ChannelHero name={channelName} creationTime={channelCreationTime} />
       )}
-      {variant === "conversation" &&  (
+      {variant === "conversation" && (
         <ConversationHero name={memberName} image={memberImage} />
       )}
     </div>
