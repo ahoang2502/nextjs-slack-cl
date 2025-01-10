@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 
 import { Id } from "./_generated/dataModel";
-import { query, QueryCtx } from "./_generated/server";
+import { mutation, query, QueryCtx } from "./_generated/server";
 import { auth } from "./auth";
 
 const populateUser = (ctx: QueryCtx, userId: Id<"users">) => {
@@ -83,5 +83,34 @@ export const current = query({
     if (!member) return null;
 
     return member;
+  },
+});
+
+export const update = mutation({
+  args: {
+    id: v.id("members"),
+    role: v.union(v.literal("admin"), v.literal("member")),
+  },
+  handler: async (ctx, args) => {
+    const userId = await auth.getUserId(ctx);
+    if (!userId) throw new Error("Unauthorized");
+
+    const member = await ctx.db.get(args.id);
+    if (!member) throw new Error("Member not found");
+
+    const currentMember = await ctx.db
+      .query("members")
+      .withIndex("by_workspace_id_user_id", (q) =>
+        q.eq("workspaceId", member.workspaceId).eq("userId", userId)
+      )
+      .unique();
+    if (!currentMember || currentMember.role !== "admin")
+      throw new Error("Unauthorized");
+
+    await ctx.db.patch(args.id, {
+      role: args.role,
+    });
+
+    return args.id;
   },
 });
